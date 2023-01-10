@@ -11,12 +11,12 @@ const Candidate = (props) => {
 
   // Kedua Setelah ditambah pasti ada perubahan di props.candidate dan si set candidate diatas dengan isi dari props dan juga akan berubah ketikan input di change
   useEffect(() => {
-    setCandidate(props.candidate);
-  }, [props.candidate]);
+    setCandidate(props?.candidate);
+  }, [props?.candidate]);
 
   // Ketiga setelah candidate diatas berubah maka akan memicu useEffect untuk melakukan submitCandidate dari data candidate didatas
   useEffect(() => {
-    props.submitCandidate(candidate);
+    props?.submitCandidate(candidate);
   }, [candidate]);
 
   return (
