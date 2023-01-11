@@ -18,11 +18,11 @@ const Navbar = () => {
 
       // Menentukan apakah navbar perlu di-fix atau tidak
       if (scrollPos > 50) {
-        navbarRef.current.classList.add("shadow");
-        navbarRef.current.classList.add("backdrop-blur");
+        navbarRef.current?.classList.add("shadow");
+        navbarRef.current?.classList.add("backdrop-blur");
       } else {
-        navbarRef.current.classList.remove("shadow");
-        navbarRef.current.classList.remove("backdrop-blur");
+        navbarRef.current?.classList.remove("shadow");
+        navbarRef.current?.classList.remove("backdrop-blur");
       }
     };
     // Menambahkan event listener pada event scroll

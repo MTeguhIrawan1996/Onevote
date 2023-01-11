@@ -7,19 +7,23 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import Button from "../../components/Button";
 import ReactDataPicker, { registerLocale } from "react-datepicker";
 import id from "date-fns/locale/id";
-import { useState } from "react";
 import Candidate from "../../components/Candidate";
 import { useSession } from "next-auth/react";
 import RestrictedPage from "../../components/RestrictedPage";
+import { ShowAlert } from "../../components/Alter";
 import "react-datepicker/dist/react-datepicker.css";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 registerLocale("id", id);
 
 const CreateVote = () => {
   const { data: session } = useSession();
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [judul, setJudul] = useState("");
+  const router = useRouter();
+  const [startDateTime, setStartDateTime] = useState(new Date());
+  const [endDateTime, setEndDateTime] = useState(new Date());
+  const [title, setTitle] = useState("");
+  const [loading, setLoading] = useState();
   const [candidates, setCandidates] = useState([
     {
       name: "",
@@ -61,6 +65,67 @@ const CreateVote = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Validasi
+    if (title === "") {
+      ShowAlert({
+        title: "Hmm",
+        message: "Judul tidak boleh kosong",
+      });
+      return;
+    }
+    if (candidates.length < 2) {
+      ShowAlert({
+        title: "Hmm",
+        message: "Minimal ada 2 kandidat",
+      });
+      return;
+    }
+
+    if (startDateTime > endDateTime) {
+      ShowAlert({
+        title: "Hmm",
+        message: "Tanggal mulai tidak boleh lebih besar dari tanggal selesai",
+      });
+      return;
+    }
+
+    if (candidates.some((c) => c.name === "")) {
+      ShowAlert({
+        title: "Hmm",
+        message: "Nama kandidat tidak boleh kosong",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    fetch("/api/vote", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+        startDateTime,
+        endDateTime,
+        candidate: candidates,
+        publisher: session.user?.email,
+      }),
+    })
+      .then((data) => {
+        ShowAlert({
+          title: "Yeay!",
+          message: "Voting berhasil dibuat",
+        });
+        router.push("/");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   if (!session) {
     return <RestrictedPage />;
   }
@@ -81,7 +146,10 @@ const CreateVote = () => {
             Silakan masukkan data yang dibutuhkan untuk membuat voting online
           </h2>
         </div>
-        <form className="flex flex-col justify-center items-center gap-10 w-full">
+        <form
+          className="flex flex-col justify-center items-center gap-10 w-full"
+          onSubmit={handleSubmit}
+        >
           <div className="flex flex-col justify-start items-start gap-6 w-full">
             <h1 className="text-xl font-bold max-[450px]:text-lg">
               Detail Voting
@@ -94,8 +162,8 @@ const CreateVote = () => {
                 type="text"
                 placeholder="Contoh: Voting Calon Gubernur"
                 className="w-[534px]"
-                onChange={(e) => setJudul(e)}
-                value={judul}
+                onChange={(e) => setTitle(e)}
+                value={title}
               />
             </div>
             <div className="flex flex-col w-full gap-1 hover:text-[#05060fc2]">
@@ -107,9 +175,9 @@ const CreateVote = () => {
                   dateFormat={"Pp"}
                   locale={"id"}
                   showTimeSelect
-                  selected={startDate}
+                  selected={startDateTime}
                   minDate={new Date()}
-                  onChange={(date) => date && setStartDate(date)}
+                  onChange={(date) => date && setStartDateTime(date)}
                   className="border-solid border-2 border-transparent rounded-lg py-0 px-4 transition-border-color duration-300 delay-0 ease-cubic-bezier hover:outline-none hover:border-[#05060f] focus:outline-none focus:border-[#05060f] bg-zinc-300 h-10 w-full"
                 />
                 <span className="text-sm font-bold text-[#05060f99] p-3 max-md:p-0 max-md:py-2">
@@ -119,9 +187,9 @@ const CreateVote = () => {
                   dateFormat={"Pp"}
                   locale={"id"}
                   showTimeSelect
-                  selected={endDate}
-                  minDate={startDate}
-                  onChange={(date) => date && setEndDate(date)}
+                  selected={endDateTime}
+                  minDate={startDateTime}
+                  onChange={(date) => date && setEndDateTime(date)}
                   className="border-solid border-2 border-transparent rounded-lg py-0 px-4 transition-border-color duration-300 delay-0 ease-cubic-bezier hover:outline-none hover:border-[#05060f] focus:outline-none focus:border-[#05060f] bg-zinc-300 h-10 w-full"
                 />
               </div>
@@ -149,7 +217,11 @@ const CreateVote = () => {
             </div>
           </div>
           <div className="flex w-full justify-end items-end mt-3 max-md:justify-center">
-            <Button text="Buat Voting" className="font-semibold text-base" />
+            <Button
+              text="Buat Voting"
+              className="font-semibold text-base"
+              isLoading={loading}
+            />
           </div>
         </form>
       </div>
