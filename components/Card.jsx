@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { LinkIcon, TrashIcon } from "@heroicons/react/24/solid";
-import useVotes from "../lib/useVote";
 import React, { useEffect, useState } from "react";
 import moment from "moment/moment";
+import useSWR from "swr";
+
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 const Card = () => {
-  const { data: dataVotesApi, error, isLoading } = useVotes();
+  const { data: dataVotesApi, error, isLoading } = useSWR("/api/vote", fetcher);
+
   const [votes, setVotes] = useState([]);
 
   useEffect(() => {
