@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { prisma } from "../../../lib/prisma";
 import { code } from "../../../lib/code";
-import { votes } from "@prisma/client";
+// import { votes } from "@prisma/client";
 
 export default async function handle(
   req: NextApiRequest,
@@ -10,7 +10,7 @@ export default async function handle(
 ) {
   const session = await getSession({ req });
 
-  if (!session) return res.status(404).json({ message: "Login dulu bos" });
+  if (!session) return res.status(401).json({ message: "Login dulu bos" });
 
   if (req.method === "POST") {
     const result = await prisma.votes.create({

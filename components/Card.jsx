@@ -1,14 +1,14 @@
-import Link from "next/link";
 import { LinkIcon, TrashIcon } from "@heroicons/react/24/solid";
 import React, { useEffect, useState } from "react";
 import moment from "moment/moment";
 import useSWR from "swr";
+import { ShowAlert } from "./Alter";
+import axios from "axios";
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 const Card = () => {
-  const { data: dataVotesApi, error, isLoading } = useSWR("/api/vote", fetcher);
-
+  const { data: dataVotesApi, error } = useSWR("/api/vote", fetcher);
   const [votes, setVotes] = useState([]);
 
   useEffect(() => {
@@ -16,6 +16,29 @@ const Card = () => {
       setVotes(dataVotesApi.data);
     }
   }, [dataVotesApi]);
+
+  const handleDelete = (code) => {
+    ShowAlert({
+      title: "Warning",
+      positiveBtnText: "Oke",
+      negativeBtnText: "Tidak",
+      message: "Yakin ingin menghapus data ini",
+      async onPositiveClick() {
+        try {
+          await axios(`/api/vote/${code}`, {
+            method: "DELETE",
+          });
+          ShowAlert({
+            title: "Yeay Berhasil",
+            message: "Data berhasil dihapus",
+          });
+          setVotes(votes?.filter((vote) => vote.code !== code));
+        } catch (err) {
+          ShowAlert({ title: "Gagal", message: "Data gagal dihapus" });
+        }
+      },
+    });
+  };
   return (
     votes.length > 0 && (
       <div className="flex justify-center flex-col items-center pt-32 pb-8 w-4/5 gap-2">
@@ -71,12 +94,15 @@ const Card = () => {
                     </div>
                   </div>
                   <div className="flex justify-center gap-6 items-center w-full py-4">
-                    <Link href="#">
+                    <button className="bg-transparent">
                       <LinkIcon className="h-6 w-6 text-zinc-700 hover:text-zinc-400" />
-                    </Link>
-                    <Link href="#">
+                    </button>
+                    <button
+                      className="bg-transparent"
+                      onClick={() => handleDelete(vote.code)}
+                    >
                       <TrashIcon className="h-6 w-6 text-zinc-700 hover:text-zinc-400" />
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>

@@ -14,6 +14,7 @@ import { ShowAlert } from "../../components/Alter";
 import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 registerLocale("id", id);
 
@@ -101,20 +102,15 @@ const CreateVote = () => {
 
     setLoading(true);
 
-    fetch("/api/vote", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    axios
+      .post("/api/vote", {
         title,
         startDateTime,
         endDateTime,
         candidate: candidates,
         publisher: session.user?.email,
-      }),
-    })
-      .then((data) => {
+      })
+      .then(() => {
         ShowAlert({
           title: "Yeay!",
           message: "Voting berhasil dibuat",
