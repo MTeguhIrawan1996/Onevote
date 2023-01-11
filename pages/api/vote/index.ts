@@ -36,7 +36,7 @@ export default async function handle(
       },
     });
 
-    const response: Res<votes[]> = {
+    const response = {
       status: 200,
       data: result,
     };
