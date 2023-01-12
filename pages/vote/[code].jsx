@@ -12,19 +12,22 @@ import { useSession } from "next-auth/react";
 import RestrictedPage from "../../components/RestrictedPage";
 import { ShowAlert } from "../../components/Alter";
 import "react-datepicker/dist/react-datepicker.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
+import useSWR from "swr";
+import Loading from "../../components/Loading";
 
 registerLocale("id", id);
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
-const CreateVote = () => {
-  const { data: session } = useSession();
+const DetailOrEditVote = () => {
   const router = useRouter();
+  const { code } = router.query;
+  const { data: session, status } = useSession();
+  const [title, setTitle] = useState("");
   const [startDateTime, setStartDateTime] = useState(new Date());
   const [endDateTime, setEndDateTime] = useState(new Date());
-  const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState();
   const [candidates, setCandidates] = useState([
     {
       name: "",
@@ -32,6 +35,22 @@ const CreateVote = () => {
       title: "",
     },
   ]);
+  const [loading, setLoading] = useState();
+
+  const { data: dataVoteApi, error } = useSWR(
+    code ? `/api/vote/${code}` : null,
+    code ? fetcher : null
+  );
+
+  useEffect(() => {
+    if (dataVoteApi && !error) {
+      const datas = dataVoteApi?.data;
+      setTitle(datas?.title);
+      setStartDateTime(new Date(datas?.startDateTime));
+      setEndDateTime(new Date(datas?.endDateTime));
+      setCandidates(datas?.candidate);
+    }
+  }, [dataVoteApi]);
 
   // Keempat setelah submit dengen useEffect maka candidates diatas akan dimaping dan diset berdasarkan key dan data kandidate dari element difile candidates atau dari cahnge input
   const submitCandidate = (candidate) => {
@@ -66,7 +85,7 @@ const CreateVote = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Validasi
     if (title === "") {
@@ -99,26 +118,30 @@ const CreateVote = () => {
       return;
     }
 
-    setLoading(true);
-    axios
-      .post("/api/vote", {
+    try {
+      await axios.put(`/api/vote/${code}`, {
         title,
         startDateTime,
         endDateTime,
         candidate: candidates,
-        publisher: session.user?.email,
-      })
-      .then(() => {
-        ShowAlert({
-          title: "Yeay!",
-          message: "Voting berhasil dibuat",
-        });
-        router.push("/");
-      })
-      .finally(() => {
-        setLoading(false);
       });
+      ShowAlert({
+        title: "Yeay!",
+        message: "Voting berhasil diubah",
+      });
+      router.push("/");
+      setLoading(false);
+    } catch (err) {
+      ShowAlert({
+        title: "Gagal!",
+        message: err.response.data.message,
+      });
+    }
   };
+
+  if (status === "loading") {
+    return <Loading />;
+  }
 
   if (!session) {
     return <RestrictedPage />;
@@ -127,17 +150,17 @@ const CreateVote = () => {
   return (
     <>
       <Head>
-        <title>Create Voting</title>
+        <title>Edit Voting</title>
       </Head>
       <Navbar />
       <div className="container flex flex-col justify-center items-start mx-auto pt-32 pb-8 w-full px-20 gap-16">
         <Image alt="create Vote" src={HeaderImg} width={284} height={198} />
         <div className="flex flex-col justify-start items-start gap-3 w-full">
           <h1 className="text-3xl font-bold max-[450px]:text-xl">
-            Buat Voting Baru
+            Update Voting
           </h1>
           <h2 className="text-1xl font-normal">
-            Silakan masukkan data yang dibutuhkan untuk membuat voting online
+            Silakan masukkan data yang dibutuhkan untuk merubah voting online
           </h2>
         </div>
         <form
@@ -212,7 +235,7 @@ const CreateVote = () => {
           </div>
           <div className="flex w-full justify-end items-end mt-3 max-md:justify-center">
             <Button
-              text="Buat Voting"
+              text="Ubah Voting"
               className="font-semibold text-base"
               isLoading={loading}
             />
@@ -223,4 +246,4 @@ const CreateVote = () => {
   );
 };
 
-export default CreateVote;
+export default DetailOrEditVote;

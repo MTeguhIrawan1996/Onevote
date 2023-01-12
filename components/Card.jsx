@@ -1,9 +1,10 @@
-import { LinkIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { LinkIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import React, { useEffect, useState } from "react";
 import moment from "moment/moment";
 import useSWR from "swr";
 import { ShowAlert } from "./Alter";
 import axios from "axios";
+import Link from "next/link";
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
@@ -94,9 +95,12 @@ const Card = () => {
                     </div>
                   </div>
                   <div className="flex justify-center gap-6 items-center w-full py-4">
-                    <button className="bg-transparent">
+                    <Link href={`/vote/${vote.code}`}>
                       <LinkIcon className="h-6 w-6 text-zinc-700 hover:text-zinc-400" />
-                    </button>
+                    </Link>
+                    <Link href={`/vote/${vote.code}`}>
+                      <PencilIcon className="h-6 w-6 text-zinc-700 hover:text-zinc-400" />
+                    </Link>
                     <button
                       className="bg-transparent"
                       onClick={() => handleDelete(vote.code)}
