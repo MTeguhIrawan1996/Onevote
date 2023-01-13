@@ -8,17 +8,42 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import RestrictedPage from "../../components/RestrictedPage";
+// import Loading from "../../components/Loading";
+import { ShowAlert } from "../../components/Alter";
+import axios from "axios";
 
 const Participant = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [code, setCode] = useState("");
   const router = useRouter();
 
-  const handleSubmit = () => {
-    router.push("/participant/kode-voting");
+  const handleSubmit = async () => {
+    if (code === "") {
+      ShowAlert({
+        title: "Hmm",
+        message: "Code tidak boleh kosong",
+      });
+      return;
+    }
+    try {
+      await axios.get(`/api/vote/${code}`);
+      router.push(`/participant/${code}`);
+    } catch (err) {
+      if (err.response.status === 404) {
+        ShowAlert({
+          title: "Hmm",
+          message: "Kode yang anda masukkan salah",
+        });
+      }
+      return;
+    }
   };
 
-  if (!session) {
+  // if (status === "loading") {
+  //   return <Loading />;
+  // }
+
+  if (!session && status !== "loading") {
     return <RestrictedPage />;
   }
 

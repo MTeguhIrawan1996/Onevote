@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import useSWR from "swr";
-import Loading from "../../components/Loading";
+// import Loading from "../../components/Loading";
 
 registerLocale("id", id);
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
@@ -35,6 +35,7 @@ const DetailOrEditVote = () => {
       title: "",
     },
   ]);
+
   const [loading, setLoading] = useState();
 
   const { data: dataVoteApi, error } = useSWR(
@@ -119,11 +120,16 @@ const DetailOrEditVote = () => {
     }
 
     try {
-      await axios.put(`/api/vote/${code}`, {
+      await axios.put("/api/vote", {
+        code: code,
         title,
         startDateTime,
         endDateTime,
-        candidate: candidates,
+        candidate: candidates.map((c) => ({
+          name: c.name,
+          key: c.key,
+          title: c.title,
+        })),
       });
       ShowAlert({
         title: "Yeay!",
@@ -139,11 +145,11 @@ const DetailOrEditVote = () => {
     }
   };
 
-  if (status === "loading") {
-    return <Loading />;
-  }
+  // if (status === "loading") {
+  //   return <Loading />;
+  // }
 
-  if (!session) {
+  if (!session && status !== "loading") {
     return <RestrictedPage />;
   }
 
@@ -179,7 +185,7 @@ const DetailOrEditVote = () => {
                 type="text"
                 placeholder="Contoh: Voting Calon Gubernur"
                 className="w-[534px]"
-                onChange={(e) => setTitle(e)}
+                onChange={setTitle}
                 value={title}
               />
             </div>

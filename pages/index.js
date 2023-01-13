@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Card from "../components/Card";
 import { useSession } from "next-auth/react";
 import { FaceSmileIcon } from "@heroicons/react/24/solid";
+import Spiner from "../components/Spiner";
 
 export default function Home() {
   const { data: session } = useSession();

@@ -13,10 +13,10 @@ const Card = () => {
   const [votes, setVotes] = useState([]);
 
   useEffect(() => {
-    if (dataVotesApi) {
+    if (dataVotesApi && !error) {
       setVotes(dataVotesApi.data);
     }
-  }, [dataVotesApi]);
+  }, [dataVotesApi, error]);
 
   const handleDelete = (code) => {
     ShowAlert({
@@ -41,12 +41,12 @@ const Card = () => {
     });
   };
   return (
-    votes.length > 0 && (
+    votes?.length > 0 && (
       <div className="flex justify-center flex-col items-center pt-32 pb-8 w-4/5 gap-2">
         <h1 className="py-5 text-2xl font-semibold">Buat Vote Saya</h1>
         <div className="grid grid-cols-1 gap-10 w-4/5 max-sm:grid-cols-1 max-md:w-full">
           {/* Looping disini */}
-          {votes.map((vote, i) => (
+          {votes?.map((vote, i) => (
             <div className="bg-black rounded-[0.75rem]" key={i}>
               <div className="block box-border border-solid border-2 border-[#000000] rounded-[0.75em] bg-white px-4 pt-2 text-black -translate-y-1 -translate-x-1 hover:-translate-y-[0.35rem] hover:-translate-x-[0.35rem] transition-transform ease-in duration-[0.1s]">
                 <div className="flex flex-col justify-start items-start font-semibold text-base max-sm:text-xs">
@@ -95,7 +95,7 @@ const Card = () => {
                     </div>
                   </div>
                   <div className="flex justify-center gap-6 items-center w-full py-4">
-                    <Link href={`/vote/${vote.code}`}>
+                    <Link href={`/participant/${vote.code}`}>
                       <LinkIcon className="h-6 w-6 text-zinc-700 hover:text-zinc-400" />
                     </Link>
                     <Link href={`/vote/${vote.code}`}>

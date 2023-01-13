@@ -44,5 +44,22 @@ export default async function handle(
     return res.json(response);
   }
 
+  // Update Votes
+  if (req.method === "PUT") {
+    const result = await prisma.votes.update({
+      where: {
+        code: req.body.code,
+      },
+      data: {
+        candidate: req.body.candidate,
+        endDateTime: req.body.endDate,
+        startDateTime: req.body.startDate,
+        title: req.body.title,
+      },
+    });
+
+    return res.json(result);
+  }
+
   return res.status(200).json({ data: "Hallo World" });
 }
