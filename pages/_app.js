@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import "../styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 

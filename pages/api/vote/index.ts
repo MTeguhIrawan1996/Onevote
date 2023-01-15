@@ -52,8 +52,8 @@ export default async function handle(
       },
       data: {
         candidate: req.body.candidate,
-        endDateTime: req.body.endDate,
-        startDateTime: req.body.startDate,
+        endDateTime: req.body.endDateTime,
+        startDateTime: req.body.startDateTime,
         title: req.body.title,
       },
     });

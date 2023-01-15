@@ -15,6 +15,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Footer from "../../components/Footer";
 
 registerLocale("id", id);
 
@@ -222,6 +223,7 @@ const CreateVote = () => {
             </div>
           </form>
         </div>
+        <Footer />
       </>
     );
   }

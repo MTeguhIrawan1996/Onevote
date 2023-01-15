@@ -13,6 +13,7 @@ const CountDownItem = ({ label, value }) => {
     </>
   );
 };
+
 const CountDownRenderer = (props) => {
   return (
     <div className="flex justify-center items-center">

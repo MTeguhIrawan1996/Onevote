@@ -11,8 +11,10 @@ import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Footer from "../../components/Footer";
+import Link from "next/link";
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 export const STATE_NOT_STARTED = "STATE_NOT_STARTED",
   STATE_STARTED = "STATE_STARTED",
@@ -38,6 +40,9 @@ const DetailParticipant = () => {
   );
 
   useEffect(() => {
+    if (error) {
+      router.push("/");
+    }
     if (dataVoteApi && !error) {
       const vote = dataVoteApi?.data;
       if (currentState === STATE_END) {
@@ -59,7 +64,7 @@ const DetailParticipant = () => {
 
       return () => clearInterval(interval);
     }
-  }, [dataVoteApi]);
+  }, [dataVoteApi, error]);
 
   useEffect(() => {
     if (dataParticipantApi && dataVoteApi) {
@@ -129,52 +134,62 @@ const DetailParticipant = () => {
         <title>Mulai Voting</title>
       </Head>
       <Navbar />
-      <div className="container mx-auto flex flex-col justify-center items-center pt-32 pb-8 gap-9">
-        <h1 className="text-4xl font-semibold max-[450px]:text-2xl">
-          {dataVoteApi?.data?.title}
-        </h1>
-        {/* Timer */}
-        <Timer
-          currentState={currentState}
-          start={dataVoteApi?.data?.startDateTime}
-          end={dataVoteApi?.data?.endDateTime}
-        />
-
-        {/* KandiateItem */}
-        {dataVoteApi?.data?.candidate.map((data, i) => (
-          <CandidateItem
-            key={i}
-            data={data}
-            selected={selectedCandidate?.name === data.name}
-            onClick={() => {
-              handleVote(data);
-            }}
-            percentage={
-              data.vote ? (data.vote / dataVoteApi?.data?.totalVotes) * 100 : 0
-            }
+      <div className="flex flex-col justify-between">
+        <div className="container min-h-screen mx-auto flex flex-col justify-center items-center pt-32 pb-8 gap-9">
+          <h1 className="text-4xl font-semibold max-[450px]:text-2xl">
+            {dataVoteApi?.data?.title}
+          </h1>
+          <Timer
+            currentState={currentState}
+            start={dataVoteApi?.data?.startDateTime}
+            end={dataVoteApi?.data?.endDateTime}
           />
-        ))}
-        {session?.user?.email !== dataVoteApi?.data?.publisher &&
-          !dataParticipantApi?.data &&
-          currentState === STATE_STARTED && (
-            <Button
-              text="Kirim vote saya"
-              className="font-semibold text-base w-[190px]"
-              onClick={() => handleSubmit()}
+          {dataVoteApi?.data?.candidate.map((data, i) => (
+            <CandidateItem
+              key={i}
+              data={data}
+              selected={selectedCandidate?.name === data.name}
+              onClick={() => {
+                handleVote(data);
+              }}
+              percentage={
+                data.vote
+                  ? (data.vote / dataVoteApi?.data?.totalVotes) * 100
+                  : 0
+              }
             />
-          )}
-        {dataParticipantApi?.data && (
-          <span className="bg-zinc-100 py-2 px-3 rounded-md">
-            Kamu sudah memilih, dan tidak diperbolehkan mengganti pilihan
-          </span>
-        )}
+          ))}
+          <div className="flex flex-col w-full justify-center items-center pt-1 gap-2">
+            {session?.user?.email !== dataVoteApi?.data?.publisher &&
+              !dataParticipantApi?.data &&
+              currentState === STATE_STARTED && (
+                <Button
+                  text="Kirim vote saya"
+                  className="font-semibold text-base w-[190px]"
+                  onClick={() => handleSubmit()}
+                />
+              )}
+            {dataParticipantApi?.data && (
+              <span className="bg-zinc-100 py-2 px-3 rounded-md">
+                Kamu sudah memilih, dan tidak diperbolehkan mengganti pilihan
+              </span>
+            )}
 
-        {session?.user?.email === dataVoteApi?.data?.publisher &&
-          currentState !== STATE_END && (
-            <span className="bg-zinc-100 py-2 px-3 rounded-md">
-              Pembuat vote tidak boleh melakukan voting
-            </span>
-          )}
+            {session?.user?.email === dataVoteApi?.data?.publisher &&
+              currentState !== STATE_END && (
+                <span className="bg-zinc-100 py-2 px-3 rounded-md">
+                  Pembuat vote tidak boleh melakukan voting
+                </span>
+              )}
+            <Link
+              href="/"
+              className="font-semibold text-base hover:text-zinc-400 transition-colors duration-300 delay-0 ease-cubic-bezier"
+            >
+              Kembali
+            </Link>
+          </div>
+        </div>
+        <Footer />
       </div>
     </>
   );

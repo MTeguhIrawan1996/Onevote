@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import useSWR from "swr";
+import Footer from "../../components/Footer";
 // import Loading from "../../components/Loading";
 
 registerLocale("id", id);
@@ -248,6 +249,7 @@ const DetailOrEditVote = () => {
           </div>
         </form>
       </div>
+      <Footer />
     </>
   );
 };

@@ -49,7 +49,9 @@ const Navbar = () => {
       />
       {session ? (
         <div className="flex justify-center items-center gap-6">
-          <span className="text-lg font-semibold">{session?.user?.name}</span>
+          <span className="text-lg font-semibold max-md:hidden">
+            {session?.user?.name}
+          </span>
           <Button text="Logout" onClick={signOut} />
         </div>
       ) : (

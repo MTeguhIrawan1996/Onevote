@@ -48,7 +48,7 @@ const Timer = (props) => {
       {props.currentState === STATE_END && (
         <>
           <span className="text-xl font-semibold max-[450px]:text-base">
-            Voting Berkahir ✔
+            Voting Berakhir ✔
           </span>
         </>
       )}
