@@ -51,6 +51,9 @@ const DetailOrEditVote = () => {
   }, [error]);
 
   useEffect(() => {
+    if (dataVoteApi?.data?.publisher !== session?.user?.email) {
+      router.push("/");
+    }
     if (dataVoteApi && !error) {
       const datas = dataVoteApi?.data;
       setTitle(datas?.title);
@@ -127,6 +130,7 @@ const DetailOrEditVote = () => {
     }
 
     try {
+      setLoading(true);
       await axios.put("/api/vote", {
         code: code,
         title,

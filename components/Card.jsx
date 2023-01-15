@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { ShowAlert } from "./Alter";
 import axios from "axios";
 import Link from "next/link";
+import Spiner from "./Spiner";
 
 const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
@@ -14,7 +15,7 @@ export const STATE_NOT_STARTED = "STATE_NOT_STARTED",
   STATE_LOADING = "STATE_LOADING";
 
 const Card = () => {
-  const { data: dataVotesApi, error } = useSWR("/api/vote", fetcher);
+  const { data: dataVotesApi, error, isLoading } = useSWR("/api/vote", fetcher);
   const [votes, setVotes] = useState([]);
   const [currentState, setCurentState] = useState(STATE_LOADING);
 
@@ -153,24 +154,27 @@ const Card = () => {
   };
 
   return (
-    votes?.length > 0 && (
-      <div className="flex justify-center flex-col items-center pt-32 pb-8 w-4/5 gap-2">
-        <h1 className="py-5 text-2xl font-semibold text-start w-4/5 max-md:w-full">
-          Buat Vote Saya
-        </h1>
-        <div className="grid grid-cols-1 gap-10 w-4/5 max-sm:grid-cols-1 max-md:w-full">
-          {/* Looping disini */}
-          {votes?.map((vote, i) => (
-            <CardItem
-              vote={vote}
-              key={i}
-              handleDelete={handleDelete}
-              index={i}
-            />
-          ))}
-        </div>
-      </div>
-    )
+    <div className="flex justify-center flex-col items-center pt-32 pb-8 w-4/5 gap-2">
+      <h1 className="py-5 text-2xl font-semibold text-start w-4/5 max-md:w-full">
+        Buat Vote Saya
+      </h1>
+      {isLoading ? (
+        <Spiner />
+      ) : (
+        votes?.length > 0 && (
+          <div className="grid grid-cols-1 gap-10 w-4/5 max-sm:grid-cols-1 max-md:w-full">
+            {votes?.map((vote, i) => (
+              <CardItem
+                vote={vote}
+                key={i}
+                handleDelete={handleDelete}
+                index={i}
+              />
+            ))}
+          </div>
+        )
+      )}
+    </div>
   );
 };
 
