@@ -27,6 +27,7 @@ export default async function handle(
       },
       where: {
         code: code as string,
+        publisher: session?.user?.email!,
         deletedAt: null,
       },
     });

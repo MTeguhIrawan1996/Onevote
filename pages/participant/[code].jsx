@@ -40,7 +40,7 @@ const DetailParticipant = () => {
   );
 
   useEffect(() => {
-    if (error) {
+    if (error?.response.status === 404) {
       router.push("/");
     }
     if (dataVoteApi && !error) {
@@ -128,71 +128,73 @@ const DetailParticipant = () => {
     return <RestrictedPage />;
   }
 
-  return (
-    <>
-      <Head>
-        <title>Mulai Voting</title>
-      </Head>
-      <Navbar />
-      <div className="flex flex-col justify-between">
-        <div className="container min-h-screen mx-auto flex flex-col justify-center items-center pt-32 pb-8 gap-9">
-          <h1 className="text-4xl font-semibold max-[450px]:text-2xl">
-            {dataVoteApi?.data?.title}
-          </h1>
-          <Timer
-            currentState={currentState}
-            start={dataVoteApi?.data?.startDateTime}
-            end={dataVoteApi?.data?.endDateTime}
-          />
-          {dataVoteApi?.data?.candidate.map((data, i) => (
-            <CandidateItem
-              key={i}
-              data={data}
-              selected={selectedCandidate?.name === data.name}
-              onClick={() => {
-                handleVote(data);
-              }}
-              percentage={
-                data.vote
-                  ? (data.vote / dataVoteApi?.data?.totalVotes) * 100
-                  : 0
-              }
+  if (session) {
+    return (
+      <>
+        <Head>
+          <title>Mulai Voting</title>
+        </Head>
+        <Navbar />
+        <div className="flex flex-col justify-between">
+          <div className="container min-h-screen mx-auto flex flex-col justify-center items-center pt-32 pb-8 gap-9">
+            <h1 className="text-4xl font-semibold max-[450px]:text-2xl">
+              {dataVoteApi?.data?.title}
+            </h1>
+            <Timer
+              currentState={currentState}
+              start={dataVoteApi?.data?.startDateTime}
+              end={dataVoteApi?.data?.endDateTime}
             />
-          ))}
-          <div className="flex flex-col w-full justify-center items-center pt-1 gap-2">
-            {session?.user?.email !== dataVoteApi?.data?.publisher &&
-              !dataParticipantApi?.data &&
-              currentState === STATE_STARTED && (
-                <Button
-                  text="Kirim vote saya"
-                  className="font-semibold text-base w-[190px]"
-                  onClick={() => handleSubmit()}
-                />
-              )}
-            {dataParticipantApi?.data && (
-              <span className="bg-zinc-100 py-2 px-3 rounded-md">
-                Kamu sudah memilih, dan tidak diperbolehkan mengganti pilihan
-              </span>
-            )}
-
-            {session?.user?.email === dataVoteApi?.data?.publisher &&
-              currentState !== STATE_END && (
+            {dataVoteApi?.data?.candidate.map((data, i) => (
+              <CandidateItem
+                key={i}
+                data={data}
+                selected={selectedCandidate?.name === data.name}
+                onClick={() => {
+                  handleVote(data);
+                }}
+                percentage={
+                  data.vote
+                    ? (data.vote / dataVoteApi?.data?.totalVotes) * 100
+                    : 0
+                }
+              />
+            ))}
+            <div className="flex flex-col w-full justify-center items-center pt-1 gap-2">
+              {session?.user?.email !== dataVoteApi?.data?.publisher &&
+                !dataParticipantApi?.data &&
+                currentState === STATE_STARTED && (
+                  <Button
+                    text="Kirim vote saya"
+                    className="font-semibold text-base w-[190px]"
+                    onClick={() => handleSubmit()}
+                  />
+                )}
+              {dataParticipantApi?.data && (
                 <span className="bg-zinc-100 py-2 px-3 rounded-md">
-                  Pembuat vote tidak boleh melakukan voting
+                  Kamu sudah memilih, dan tidak diperbolehkan mengganti pilihan
                 </span>
               )}
-            <Link
-              href="/"
-              className="font-semibold text-base hover:text-zinc-400 transition-colors duration-300 delay-0 ease-cubic-bezier"
-            >
-              Kembali
-            </Link>
+
+              {session?.user?.email === dataVoteApi?.data?.publisher &&
+                currentState !== STATE_END && (
+                  <span className="bg-zinc-100 py-2 px-3 rounded-md">
+                    Pembuat vote tidak boleh melakukan voting
+                  </span>
+                )}
+              <Link
+                href="/"
+                className="font-semibold text-base hover:text-zinc-400 transition-colors duration-300 delay-0 ease-cubic-bezier"
+              >
+                Kembali
+              </Link>
+            </div>
           </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
-    </>
-  );
+      </>
+    );
+  }
 };
 
 export default DetailParticipant;

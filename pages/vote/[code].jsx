@@ -20,7 +20,7 @@ import Footer from "../../components/Footer";
 // import Loading from "../../components/Loading";
 
 registerLocale("id", id);
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const DetailOrEditVote = () => {
   const router = useRouter();
@@ -43,6 +43,12 @@ const DetailOrEditVote = () => {
     code ? `/api/vote/${code}` : null,
     code ? fetcher : null
   );
+
+  useEffect(() => {
+    if (error?.response.status === 404) {
+      router.push("/");
+    }
+  }, [error]);
 
   useEffect(() => {
     if (dataVoteApi && !error) {
@@ -154,104 +160,107 @@ const DetailOrEditVote = () => {
     return <RestrictedPage />;
   }
 
-  return (
-    <>
-      <Head>
-        <title>Edit Voting</title>
-      </Head>
-      <Navbar />
-      <div className="container flex flex-col justify-center items-start mx-auto pt-32 pb-8 w-full px-20 gap-16">
-        <Image alt="create Vote" src={HeaderImg} width={284} height={198} />
-        <div className="flex flex-col justify-start items-start gap-3 w-full">
-          <h1 className="text-3xl font-bold max-[450px]:text-xl">
-            Update Voting
-          </h1>
-          <h2 className="text-1xl font-normal">
-            Silakan masukkan data yang dibutuhkan untuk merubah voting online
-          </h2>
-        </div>
-        <form
-          className="flex flex-col justify-center items-center gap-10 w-full"
-          onSubmit={handleSubmit}
-        >
-          <div className="flex flex-col justify-start items-start gap-6 w-full">
-            <h1 className="text-xl font-bold max-[450px]:text-lg">
-              Detail Voting
+  if (session)
+    return (
+      <>
+        <Head>
+          <title>Edit Voting</title>
+        </Head>
+        <Navbar />
+        <div className="container flex flex-col justify-center items-start mx-auto pt-32 pb-8 w-full px-20 gap-16">
+          <Image alt="create Vote" src={HeaderImg} width={284} height={198} />
+          <div className="flex flex-col justify-start items-start gap-3 w-full">
+            <h1 className="text-3xl font-bold max-[450px]:text-xl">
+              Update Voting
             </h1>
-            <div className="flex flex-col w-full gap-1 hover:text-[#05060fc2]">
-              <label className="block text-sm font-bold text-[#05060f99] transition-color duration-300 delay-0 ease-cubic-bezier hover:text-[#05060fc2]">
-                Judul
-              </label>
-              <Input
-                type="text"
-                placeholder="Contoh: Voting Calon Gubernur"
-                className="w-[534px]"
-                onChange={setTitle}
-                value={title}
+            <h2 className="text-1xl font-normal">
+              Silakan masukkan data yang dibutuhkan untuk merubah voting online
+            </h2>
+          </div>
+          <form
+            className="flex flex-col justify-center items-center gap-10 w-full"
+            onSubmit={handleSubmit}
+          >
+            <div className="flex flex-col justify-start items-start gap-6 w-full">
+              <h1 className="text-xl font-bold max-[450px]:text-lg">
+                Detail Voting
+              </h1>
+              <div className="flex flex-col w-full gap-1 hover:text-[#05060fc2]">
+                <label className="block text-sm font-bold text-[#05060f99] transition-color duration-300 delay-0 ease-cubic-bezier hover:text-[#05060fc2]">
+                  Judul
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Contoh: Voting Calon Gubernur"
+                  className="w-[534px]"
+                  onChange={setTitle}
+                  value={title}
+                />
+              </div>
+              <div className="flex flex-col w-full gap-1 hover:text-[#05060fc2]">
+                <label className="block text-sm font-bold text-[#05060f99] transition-color duration-300 delay-0 ease-cubic-bezier hover:text-[#05060fc2]">
+                  Kapan dimuali?
+                </label>
+                <div className="inline-flex items-center max-md:flex-col max-md:items-start w-full max-w-4xl">
+                  <ReactDataPicker
+                    dateFormat={"Pp"}
+                    locale={"id"}
+                    showTimeSelect
+                    selected={startDateTime}
+                    minDate={new Date()}
+                    onChange={(date) => date && setStartDateTime(date)}
+                    className="border-solid border-2 border-transparent rounded-lg py-0 px-4 transition-border-color duration-300 delay-0 ease-cubic-bezier hover:outline-none hover:border-[#05060f] focus:outline-none focus:border-[#05060f] bg-zinc-300 h-10 w-full"
+                  />
+                  <span className="text-sm font-bold text-[#05060f99] p-3 max-md:p-0 max-md:py-2">
+                    Sampai
+                  </span>
+                  <ReactDataPicker
+                    dateFormat={"Pp"}
+                    locale={"id"}
+                    showTimeSelect
+                    selected={endDateTime}
+                    minDate={startDateTime}
+                    onChange={(date) => date && setEndDateTime(date)}
+                    className="border-solid border-2 border-transparent rounded-lg py-0 px-4 transition-border-color duration-300 delay-0 ease-cubic-bezier hover:outline-none hover:border-[#05060f] focus:outline-none focus:border-[#05060f] bg-zinc-300 h-10 w-full"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col justify-start items-start gap-6 w-full mt-3">
+              <h1 className="text-xl font-bold max-[450px]:text-lg">
+                Kandidat
+              </h1>
+              <div className="flex flex-wrap justify-start items-start gap-6 w-full max-md:flex-col max-md:justify-start max-md:items-center">
+                {/* Mapping candidate */}
+                {candidates?.map((data, index) => (
+                  <Candidate
+                    key={index}
+                    candidate={data}
+                    submitCandidate={submitCandidate}
+                    removeCandidateForm={handleRemoveCandidate}
+                  />
+                ))}
+
+                <div
+                  className="flex justify-center items-center bg-zinc-300 w-24 h-20 text-zinc-100 hover:text-zinc-700 cursor-pointer transition-color duration-300 delay-0 ease-cubic-bezier"
+                  onClick={handleAddCandidate}
+                >
+                  <PlusIcon className="h-10 w-10" />
+                </div>
+              </div>
+            </div>
+            <div className="flex w-full justify-end items-end mt-3 max-md:justify-center">
+              <Button
+                text="Ubah Voting"
+                className="font-semibold text-base"
+                isLoading={loading}
               />
             </div>
-            <div className="flex flex-col w-full gap-1 hover:text-[#05060fc2]">
-              <label className="block text-sm font-bold text-[#05060f99] transition-color duration-300 delay-0 ease-cubic-bezier hover:text-[#05060fc2]">
-                Kapan dimuali?
-              </label>
-              <div className="inline-flex items-center max-md:flex-col max-md:items-start w-full max-w-4xl">
-                <ReactDataPicker
-                  dateFormat={"Pp"}
-                  locale={"id"}
-                  showTimeSelect
-                  selected={startDateTime}
-                  minDate={new Date()}
-                  onChange={(date) => date && setStartDateTime(date)}
-                  className="border-solid border-2 border-transparent rounded-lg py-0 px-4 transition-border-color duration-300 delay-0 ease-cubic-bezier hover:outline-none hover:border-[#05060f] focus:outline-none focus:border-[#05060f] bg-zinc-300 h-10 w-full"
-                />
-                <span className="text-sm font-bold text-[#05060f99] p-3 max-md:p-0 max-md:py-2">
-                  Sampai
-                </span>
-                <ReactDataPicker
-                  dateFormat={"Pp"}
-                  locale={"id"}
-                  showTimeSelect
-                  selected={endDateTime}
-                  minDate={startDateTime}
-                  onChange={(date) => date && setEndDateTime(date)}
-                  className="border-solid border-2 border-transparent rounded-lg py-0 px-4 transition-border-color duration-300 delay-0 ease-cubic-bezier hover:outline-none hover:border-[#05060f] focus:outline-none focus:border-[#05060f] bg-zinc-300 h-10 w-full"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col justify-start items-start gap-6 w-full mt-3">
-            <h1 className="text-xl font-bold max-[450px]:text-lg">Kandidat</h1>
-            <div className="flex flex-wrap justify-start items-start gap-6 w-full max-md:flex-col max-md:justify-start max-md:items-center">
-              {/* Mapping candidate */}
-              {candidates.map((data, index) => (
-                <Candidate
-                  key={index}
-                  candidate={data}
-                  submitCandidate={submitCandidate}
-                  removeCandidateForm={handleRemoveCandidate}
-                />
-              ))}
-
-              <div
-                className="flex justify-center items-center bg-zinc-300 w-24 h-20 text-zinc-100 hover:text-zinc-700 cursor-pointer transition-color duration-300 delay-0 ease-cubic-bezier"
-                onClick={handleAddCandidate}
-              >
-                <PlusIcon className="h-10 w-10" />
-              </div>
-            </div>
-          </div>
-          <div className="flex w-full justify-end items-end mt-3 max-md:justify-center">
-            <Button
-              text="Ubah Voting"
-              className="font-semibold text-base"
-              isLoading={loading}
-            />
-          </div>
-        </form>
-      </div>
-      <Footer />
-    </>
-  );
+          </form>
+        </div>
+        <Footer />
+      </>
+    );
 };
 
 export default DetailOrEditVote;
