@@ -18,11 +18,9 @@ const Navbar = () => {
 
       // Menentukan apakah navbar perlu di-fix atau tidak
       if (scrollPos > 50) {
-        navbarRef.current?.classList.add("shadow");
-        navbarRef.current?.classList.add("backdrop-blur");
+        navbarRef.current?.classList.add("shadow-md");
       } else {
-        navbarRef.current?.classList.remove("shadow");
-        navbarRef.current?.classList.remove("backdrop-blur");
+        navbarRef.current?.classList.remove("shadow-md");
       }
     };
     // Menambahkan event listener pada event scroll
@@ -37,7 +35,7 @@ const Navbar = () => {
   return (
     <div
       ref={navbarRef}
-      className="flex justify-between py-5 items-center max-[900px]:px-10 px-20 backdrop-blur transition ease-in-out fixed top-0 left-0 right-0 z-50"
+      className="flex justify-between py-5 items-center max-[900px]:px-10 px-20 transition ease-in-out fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/75"
     >
       <Image
         src={Logo}
